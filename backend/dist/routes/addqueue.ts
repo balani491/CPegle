@@ -4,6 +4,8 @@ import axios from 'axios';
 import WebSocket, { WebSocketServer } from 'ws';
 import http from 'http';
 import authMiddleware from '../middleware/verify';
+import { paired } from '../socket';
+import { userSockets } from '../socket';
 
 const prisma = new PrismaClient();
 const addQueueRouter = express.Router();
@@ -12,9 +14,9 @@ interface User {
   username: string;
   socket: WebSocket;
 }
-const paired= new Map<string,string>();
+// const paired= new Map<string,string>();
 const queue: User[] = [];
-const userSockets: Map<string, WebSocket> = new Map();
+// const userSockets: Map<string, WebSocket> = new Map();
 
 
 async function pollSubmissions(user1:string, user2:string, competitionLink:string) {
@@ -178,74 +180,74 @@ addQueueRouter.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// WebSocket server setup
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+// // WebSocket server setup
+// const app = express();
+// const server = http.createServer(app);
+// const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws, req) => {
-  console.log('WebSocket connection established');
+// wss.on('connection', (ws, req) => {
+//   console.log('WebSocket connection established');
 
 
-  ws.on('message', message => {
-    const { event, data } = JSON.parse(message.toString());
-    if (event === 'register') {
-      userSockets.set(data.username, ws);
-      console.log(`WebSocket registered for user ${data.username}`);
-      ws.send(JSON.stringify({ event: 'registered', data: { message: 'WebSocket registered successfully' } }));
+//   ws.on('message', message => {
+//     const { event, data } = JSON.parse(message.toString());
+//     if (event === 'register') {
+//       userSockets.set(data.username, ws);
+//       console.log(`WebSocket registered for user ${data.username}`);
+//       ws.send(JSON.stringify({ event: 'registered', data: { message: 'WebSocket registered successfully' } }));
 
-      // queue.push({ username: data.username, socket: ws });
-    }
-    if (event === 'messageSend') {
-      const user1 = data.username;
-      const user2 = paired.get(user1);
-      const message = data.message;
+//       // queue.push({ username: data.username, socket: ws });
+//     }
+//     if (event === 'messageSend') {
+//       const user1 = data.username;
+//       const user2 = paired.get(user1);
+//       const message = data.message;
     
-      if (user2) {
+//       if (user2) {
         
-        const user2Socket = userSockets.get(user2);
+//         const user2Socket = userSockets.get(user2);
     
-        console.log(`Message sent: ${message}`);
-        if (user2Socket) {
-          user2Socket.send(JSON.stringify({ event: 'messageReceive', data: { username:user1,message } }));
-        }
-      } else {
-        console.error(`User not paired: ${user1}`);
-      }
-    }  
-    if(event=='messaageReceive'){
-      console.log(`Message received: ${data.message}`);
-    } 
+//         console.log(`Message sent: ${message}`);
+//         if (user2Socket) {
+//           user2Socket.send(JSON.stringify({ event: 'messageReceive', data: { username:user1,message } }));
+//         }
+//       } else {
+//         console.error(`User not paired: ${user1}`);
+//       }
+//     }  
+//     if(event=='messaageReceive'){
+//       console.log(`Message received: ${data.message}`);
+//     } 
 
-    if (event === 'competitionStart') {
-        console.log(`Competition started with
-           ${data.opponent}. Problem link: ${data.link}`);
-      }
-    if(event === 'winner'){
-      console.log(`Winner is ${data.winner}`);
-    }
-    if(event === 'timeout'){
-      console.log(`Timeout: ${data.message}`);
-    }
-  });
+//     if (event === 'competitionStart') {
+//         console.log(`Competition started with
+//            ${data.opponent}. Problem link: ${data.link}`);
+//       }
+//     if(event === 'winner'){
+//       console.log(`Winner is ${data.winner}`);
+//     }
+//     if(event === 'timeout'){
+//       console.log(`Timeout: ${data.message}`);
+//     }
+//   });
 
-  ws.on('close', () => {
-    console.log('WebSocket connection closed');
-    userSockets.forEach((socket, username) => {
-      if (socket === ws) {
-        userSockets.delete(username);
-      }
-    });
-  });
-});
+//   ws.on('close', () => {
+//     console.log('WebSocket connection closed');
+//     userSockets.forEach((socket, username) => {
+//       if (socket === ws) {
+//         userSockets.delete(username);
+//       }
+//     });
+//   });
+// });
 
 
-app.use(express.json());
-app.use('/api', addQueueRouter);
-const PORT2=process.env.PORT2 || 3000;
+// app.use(express.json());
+// app.use('/api', addQueueRouter);
+// const PORT2=process.env.PORT2 || 3000;
 
-server.listen(PORT2, () => {
-  console.log('Server is running on port 3000');
-});
-
+// server.listen(PORT2, () => {
+//   console.log('Server is running on port 3000');
+// });
+export {paired}
 export default addQueueRouter;

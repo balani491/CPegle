@@ -214,7 +214,7 @@ export const Dashboard: React.FC = () => {
   const [receivedMessages, setReceivedMessages] = useState<SystemMessage[]>([]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3000');
+    const ws = new WebSocket('ws://localhost:3001');
 
     const storedUsername = localStorage.getItem('username') || '';
     setUsername(storedUsername);

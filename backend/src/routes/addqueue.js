@@ -12,17 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.paired = void 0;
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const axios_1 = __importDefault(require("axios"));
-const ws_1 = require("ws");
-const http_1 = __importDefault(require("http"));
 const verify_1 = __importDefault(require("../middleware/verify"));
+const socket_1 = require("../socket");
+Object.defineProperty(exports, "paired", { enumerable: true, get: function () { return socket_1.paired; } });
+const socket_2 = require("../socket");
 const prisma = new client_1.PrismaClient();
 const addQueueRouter = express_1.default.Router();
-const paired = new Map();
+// const paired= new Map<string,string>();
 const queue = [];
-const userSockets = new Map();
+// const userSockets: Map<string, WebSocket> = new Map();
 function pollSubmissions(user1, user2, competitionLink) {
     return __awaiter(this, void 0, void 0, function* () {
         const pollInterval = 5000; // Poll every 5 seconds
@@ -63,8 +65,8 @@ function pollSubmissions(user1, user2, competitionLink) {
                     else {
                         winner = user2;
                     }
-                    const user1Socket = userSockets.get(user1);
-                    const user2Socket = userSockets.get(user2);
+                    const user1Socket = socket_2.userSockets.get(user1);
+                    const user2Socket = socket_2.userSockets.get(user2);
                     if (user1Socket) {
                         user1Socket.send(JSON.stringify({ event: 'winner', data: { winner } }));
                     }
@@ -78,8 +80,8 @@ function pollSubmissions(user1, user2, competitionLink) {
                 }
                 else {
                     // No submissions within maxDuration
-                    const user1Socket = userSockets.get(user1);
-                    const user2Socket = userSockets.get(user2);
+                    const user1Socket = socket_2.userSockets.get(user1);
+                    const user2Socket = socket_2.userSockets.get(user2);
                     if (user1Socket) {
                         user1Socket.send(JSON.stringify({ event: 'timeout', data: { message: 'No submissions detected within the time limit' } }));
                     }
@@ -121,7 +123,7 @@ addQueueRouter.post("/", verify_1.default, (req, res) => __awaiter(void 0, void 
         const d = yield axios_1.default.get(`https://codeforces.com/api/user.info?handles=${user}&checkHistoricHandles=false`);
         const rating = d.data.result[0].rating;
         // console.log(`User ${user} has rating ${rating}`);
-        const userSocket = userSockets.get(user);
+        const userSocket = socket_2.userSockets.get(user);
         if (!userSocket) {
             return res.status(400).json({ message: "WebSocket connection not established" });
         }
@@ -140,8 +142,8 @@ addQueueRouter.post("/", verify_1.default, (req, res) => __awaiter(void 0, void 
             const user1 = queue.shift();
             const user2 = queue.shift();
             if (user1 && user2) {
-                paired.set(user1.username, user2.username);
-                paired.set(user2.username, user1.username);
+                socket_1.paired.set(user1.username, user2.username);
+                socket_1.paired.set(user2.username, user1.username);
             }
             if (!user1 || !user2) {
                 return res.status(500).json({ message: "Queue processing error" });
@@ -163,62 +165,4 @@ addQueueRouter.post("/", verify_1.default, (req, res) => __awaiter(void 0, void 
         return res.status(500).json({ message: "Internal server error" });
     }
 }));
-// WebSocket server setup
-const app = (0, express_1.default)();
-const server = http_1.default.createServer(app);
-const wss = new ws_1.WebSocketServer({ server });
-wss.on('connection', (ws, req) => {
-    console.log('WebSocket connection established');
-    ws.on('message', message => {
-        const { event, data } = JSON.parse(message.toString());
-        if (event === 'register') {
-            userSockets.set(data.username, ws);
-            console.log(`WebSocket registered for user ${data.username}`);
-            ws.send(JSON.stringify({ event: 'registered', data: { message: 'WebSocket registered successfully' } }));
-            // queue.push({ username: data.username, socket: ws });
-        }
-        if (event === 'messageSend') {
-            const user1 = data.username;
-            const user2 = paired.get(user1);
-            const message = data.message;
-            if (user2) {
-                const user2Socket = userSockets.get(user2);
-                console.log(`Message sent: ${message}`);
-                if (user2Socket) {
-                    user2Socket.send(JSON.stringify({ event: 'messageReceive', data: { username: user1, message } }));
-                }
-            }
-            else {
-                console.error(`User not paired: ${user1}`);
-            }
-        }
-        if (event == 'messaageReceive') {
-            console.log(`Message received: ${data.message}`);
-        }
-        if (event === 'competitionStart') {
-            console.log(`Competition started with
-           ${data.opponent}. Problem link: ${data.link}`);
-        }
-        if (event === 'winner') {
-            console.log(`Winner is ${data.winner}`);
-        }
-        if (event === 'timeout') {
-            console.log(`Timeout: ${data.message}`);
-        }
-    });
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-        userSockets.forEach((socket, username) => {
-            if (socket === ws) {
-                userSockets.delete(username);
-            }
-        });
-    });
-});
-app.use(express_1.default.json());
-app.use('/api', addQueueRouter);
-const PORT2 = process.env.PORT2 || 3000;
-server.listen(PORT2, () => {
-    console.log('Server is running on port 3000');
-});
 exports.default = addQueueRouter;
