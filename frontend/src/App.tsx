@@ -3,9 +3,9 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { Signup } from "./pages/Signup";
-import { Signin } from "./pages/Signin";
-import { Dashboard } from "./pages/Dashboard";
+import { Signup } from "./pages/Signup.tsx";
+import { Signin } from "./pages/Signin.tsx";
+import { Dashboard } from "./pages/Dashboard.tsx";
 
 
 function App() {
