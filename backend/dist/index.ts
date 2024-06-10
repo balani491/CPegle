@@ -9,4 +9,6 @@ app.use(express.json());
 
 app.use("/api/v1", rootRouter);
 
-app.listen(3001);
+const PORT1=process.env.PORT1 || 3001;
+
+app.listen(PORT1);

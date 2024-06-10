@@ -217,7 +217,8 @@ wss.on('connection', (ws, req) => {
 });
 app.use(express_1.default.json());
 app.use('/api', addQueueRouter);
-server.listen(3000, () => {
+const PORT2 = process.env.PORT2 || 3000;
+server.listen(PORT2, () => {
     console.log('Server is running on port 3000');
 });
 exports.default = addQueueRouter;

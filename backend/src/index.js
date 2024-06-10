@@ -10,4 +10,5 @@ const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use("/api/v1", index_1.default);
-app.listen(3001);
+const PORT1 = process.env.PORT1 || 3001;
+app.listen(PORT1);
