@@ -1,7 +1,7 @@
 
 # CPegle
 
-CPegle is a project idea i got during my endsem exams that if there is omegle why not have something simmilar for CP so i made CPegle.Which uses Codeforces API endpoints to get questions and verify whether a user exists in Codeforces.
+CPegle is a project idea i got during my endsem exams that if there is omegle why not have something similar for CP so i made CPegle.Which uses Codeforces API endpoints to get questions and verify whether a user exists in Codeforces.
 
 
 ## Features
