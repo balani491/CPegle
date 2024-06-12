@@ -27,7 +27,7 @@ export const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket('wss://cpegleb.onrender.com');
 
     const storedUsername = localStorage.getItem('username') || '';
     setUsername(storedUsername);
@@ -97,7 +97,7 @@ export const Dashboard: React.FC = () => {
       return;
     }
 
-    axios.post('http://localhost:3001/api/v1/addqueue', {
+    axios.post('https://cpegleb.onrender.com/api/v1/addqueue', {
       username: username
     }, {
       headers: {

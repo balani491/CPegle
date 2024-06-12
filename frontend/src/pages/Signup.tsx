@@ -25,7 +25,7 @@ export const Signup: React.FC = () => {
   // Handler for signing up
   const handleSignup = async () => {
     try {
-      const response = await axios.post("http://localhost:3001/api/v1/signup", {
+      const response = await axios.post("https://cpegleb.onrender.com/api/v1/signup", {
         username,
         password
       });
