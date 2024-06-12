@@ -16,6 +16,7 @@ interface User {
 }
 // const paired= new Map<string,string>();
 const queue: User[] = [];
+
 // const userSockets: Map<string, WebSocket> = new Map();
 
 
@@ -152,6 +153,11 @@ addQueueRouter.post("/", authMiddleware, async (req, res) => {
       const user1 = queue.shift();
       const user2 = queue.shift();
       if(user1 && user2){
+        if (user1.username === user2.username) {
+          // Ensure that no user is paired with themselves
+          queue.unshift(user2); // Add the second user back to the front of the queue
+          return res.json({ message: "Waiting for another user to join the queue" });
+        }
         paired.set(user1.username,user2.username);
         paired.set(user2.username,user1.username);
       }
@@ -250,5 +256,5 @@ addQueueRouter.post("/", authMiddleware, async (req, res) => {
 // server.listen(PORT2, () => {
 //   console.log('Server is running on port 3000');
 // });
-export {paired}
+export {paired,queue}
 export default addQueueRouter;

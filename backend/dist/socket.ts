@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import rootRouter from "./routes/index";
+import { queue } from './routes/addqueue';
 
 const app = express();
 const server = http.createServer(app);
@@ -59,11 +60,18 @@ wss.on('connection', (ws, req) => {
   
     ws.on('close', () => {
       console.log('WebSocket connection closed');
+      let user:any;
       userSockets.forEach((socket, username) => {
         if (socket === ws) {
+          user = username;
           userSockets.delete(username);
         }
       });
+      queue.forEach((element,index)=>{
+        if(element.username==user){
+          queue.splice(index,1);
+        }
+      })
     });
   });
   
