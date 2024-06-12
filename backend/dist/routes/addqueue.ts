@@ -120,10 +120,10 @@ async function giveCompetition(user1: string, user2: string) {
 addQueueRouter.post("/", authMiddleware, async (req, res) => {
   const user = req.body.username;
 
-  // const userInQueue = queue.find(q => q.username === user);
-  // if (userInQueue) {
-  //   return res.json({ message: "User already in queue" });
-  // }
+  const userInQueue = queue.find(q => q.username === user);
+  if (userInQueue) {
+    return res.json({ message: "User already in queue" });
+  }
 
   try {
     const d = await axios.get(`https://codeforces.com/api/user.info?handles=${user}&checkHistoricHandles=false`);
@@ -143,7 +143,7 @@ addQueueRouter.post("/", authMiddleware, async (req, res) => {
       }
     });
     
-    if(queue.find(q=>q.username===user)){ return res.json({ message: "User already in queue" });}
+    // if(queue.find(q=>q.username===user)){ return res.json({ message: "User already in queue" });}
     queue.push({ username: user, socket: userSocket });
 
     if (queue.length < 2) {
