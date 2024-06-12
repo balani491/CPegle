@@ -1,7 +1,7 @@
 
 # CPegle
 
-CPegle is a project idea i got during my endsem exams that if there is omegle why not have something simmilar for CP so i made CPegle.
+CPegle is a project idea i got during my endsem exams that if there is omegle why not have something simmilar for CP so i made CPegle.Which uses Codeforces API endpoints to get questions and verify whether a user exists in Codeforces.
 
 
 ## Features
@@ -97,3 +97,4 @@ The backend is currently hosted as a Web Service in Render
 - Unit Testing with jest or vitest
 - Change Password with mobile/email verification
 - An LLM to answer some coding related doubt.
+- In house questions and IDE so that we don't need to rely on Codeforces API
