@@ -131,7 +131,7 @@ export const Dashboard: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('token');
-    window.location.href = '/signin';
+    window.location.href = '/';
   };
 
   const handleMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
