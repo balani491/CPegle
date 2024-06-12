@@ -142,7 +142,8 @@ addQueueRouter.post("/", authMiddleware, async (req, res) => {
         rating: 1200
       }
     });
-
+    
+    if(queue.find(q=>q.username===user)){ return res.json({ message: "User already in queue" });}
     queue.push({ username: user, socket: userSocket });
 
     if (queue.length < 2) {
